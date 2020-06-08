@@ -17,13 +17,23 @@
 
 import logging
 import os
+#import ldap
 
 import wtforms_json
-from flask import Flask, redirect
+from flask import Flask, redirect, make_response, g , request, flash
 from flask_appbuilder import expose, IndexView
 from flask_babel import gettext as __, lazy_gettext as _
 from flask_compress import Compress
 from flask_wtf import CSRFProtect
+
+from urllib.parse import quote
+
+from flask_appbuilder.security.views import UserDBModelView, AuthDBView,AuthLDAPView,AuthView,AuthOIDView
+from superset.security import SupersetSecurityManager
+from flask_appbuilder.security.views import expose
+from flask_appbuilder.security.manager import BaseSecurityManager
+
+from flask_login import login_user, logout_user
 
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.extensions import (
@@ -67,9 +77,25 @@ def create_app():
 
 
 class SupersetIndexView(IndexView):
-    @expose("/")
+    @expose("/", methods=['GET', 'POST'])
     def index(self):
+
+        name = request.cookies.get('sso')
+        if name is not None:
+            a = name.split(':')
+            username,pwd = a[0],a[1] 
+
+            user = self.appbuilder.sm.auth_user_db(username, pwd )
+            if not user:
+                #flash(self.invalid_login_message, "warning")
+                return redirect(self.appbuilder.get_url_for_login)
+            
+            login_user(user, remember=False)
+            return redirect("/superset/welcome")
+        
         return redirect("/superset/welcome")
+        
+
 
 
 class SupersetAppInitializer:

@@ -26,13 +26,14 @@ import json
 import logging
 import os
 import sys
+import ldap
 from collections import OrderedDict
 from datetime import date
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from celery.schedules import crontab
 from dateutil import tz
-from flask_appbuilder.security.manager import AUTH_DB
+from flask_appbuilder.security.manager import AUTH_DB, AUTH_LDAP
 
 from superset.jinja_context import (  # pylint: disable=unused-import
     BaseTemplateProcessor,
@@ -125,7 +126,13 @@ SUPERSET_WEBSERVER_PORT = 8088
 SUPERSET_WEBSERVER_TIMEOUT = 60
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
-CUSTOM_SECURITY_MANAGER = None
+
+
+from flask_appbuilder.security.manager import AUTH_DB
+from superset.custom_security_manager import CustomSecurityManager
+CUSTOM_SECURITY_MANAGER = CustomSecurityManager
+
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 # ---------------------------------------------------------
 
@@ -219,23 +226,29 @@ DRUID_METADATA_LINKS_ENABLED = True
 # AUTH_DB : Is for database (username/password)
 # AUTH_LDAP : Is for LDAP
 # AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
-AUTH_TYPE = AUTH_DB
+#AUTH_TYPE = AUTH_DB
+AUTH_TYPE = AUTH_LDAP 
 
 # Uncomment to setup Full admin role name
 # AUTH_ROLE_ADMIN = 'Admin'
 
 # Uncomment to setup Public role name, no authentication needed
-# AUTH_ROLE_PUBLIC = 'Public'
-
+AUTH_ROLE_PUBLIC = 'Public'
+ 
 # Will allow user self registration
-# AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION = True
 
 # The default user self registration role
-# AUTH_USER_REGISTRATION_ROLE = "Public"
+AUTH_USER_REGISTRATION_ROLE = 'Admin'
 
 # When using LDAP Auth, setup the LDAP server
-# AUTH_LDAP_SERVER = "ldap://ldapserver.new"
+AUTH_LDAP_SERVER = 'ldap://34.212.135.8:389'
 
+AUTH_LDAP_BIND_USER = 'cn=admin,dc=qubz-bi,dc=com'
+AUTH_LDAP_USE_TLS = False
+AUTH_LDAP_BIND_PASSWORD = 'Ldap@123'
+AUTH_LDAP_UID_FIELD = 'uid'
+AUTH_LDAP_SEARCH = 'dc=qubz-bi,dc=com'
 # Uncomment to setup OpenID providers example for OpenID authentication
 # OPENID_PROVIDERS = [
 #    { 'name': 'Yahoo', 'url': 'https://open.login.yahoo.com/' },
@@ -806,9 +819,10 @@ ENABLE_ROW_LEVEL_SECURITY = False
 # See https://flask.palletsprojects.com/en/1.1.x/security/#set-cookie-options
 # for details
 #
-SESSION_COOKIE_HTTPONLY = True  # Prevent cookie from being read by frontend JS?
+SESSION_COOKIE_HTTPONLY = False  # Prevent cookie from being read by frontend JS?
 SESSION_COOKIE_SECURE = False  # Prevent cookie from being transmitted over non-tls?
 SESSION_COOKIE_SAMESITE = "Lax"  # One of [None, 'Lax', 'Strict']
+
 
 # Flask configuration variables
 SEND_FILE_MAX_AGE_DEFAULT = 60 * 60 * 24 * 365  # Cache static resources

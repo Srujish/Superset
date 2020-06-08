@@ -28,7 +28,8 @@ import msgpack
 import pandas as pd
 import pyarrow as pa
 import simplejson as json
-from flask import abort, flash, g, Markup, redirect, render_template, request, Response
+from flask import abort, flash, g, Markup, redirect, render_template, request, Response, make_response
+
 from flask_appbuilder import expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.security.decorators import has_access, has_access_api
@@ -2727,6 +2728,8 @@ class Superset(BaseSupersetView):
 
     @expose("/welcome")
     def welcome(self):
+
+
         """Personalized welcome page"""
         if not g.user or not g.user.get_id():
             return redirect(appbuilder.get_url_for_login)
@@ -2736,6 +2739,8 @@ class Superset(BaseSupersetView):
             .filter_by(user_id=g.user.get_id())
             .scalar()
         )
+
+        
         if welcome_dashboard_id:
             return self.dashboard(str(welcome_dashboard_id))
 
@@ -2762,6 +2767,7 @@ class Superset(BaseSupersetView):
         user = (
             db.session.query(ab_models.User).filter_by(username=username).one_or_none()
         )
+        
         if not user:
             abort(404, description=f"User: {username} does not exist.")
 
