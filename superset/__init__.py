@@ -35,7 +35,7 @@ from superset.extensions import (
 )
 from superset.security import SupersetSecurityManager
 from superset.utils.log import DBEventLogger, get_event_logger_from_cfg_value
-from superset.custom_security_manager import CustomSecurityManager
+from superset.custom_security_manager import CustomSecurityManager,SSOSessionClient
 
 #  All of the fields located here should be considered legacy. The correct way
 #  to declare "global" dependencies is to define it in extensions.py,
@@ -54,3 +54,5 @@ results_backend_use_msgpack = LocalProxy(
 )
 tables_cache = LocalProxy(lambda: cache_manager.tables_cache)
 thumbnail_cache = LocalProxy(lambda: cache_manager.thumbnail_cache)
+
+#from superset.custom_security_manager import CustomSecurityManager,SSOSessionClient

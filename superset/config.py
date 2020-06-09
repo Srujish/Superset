@@ -127,10 +127,14 @@ SUPERSET_WEBSERVER_TIMEOUT = 60
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
 
+SSO_HOST = '34.212.135.8'
+SSO_PORT = 1978
+SSO_NAME = 'ssosession'
 
 from flask_appbuilder.security.manager import AUTH_DB
 from superset.custom_security_manager import CustomSecurityManager
 CUSTOM_SECURITY_MANAGER = CustomSecurityManager
+
 
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False

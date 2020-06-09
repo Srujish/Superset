@@ -18,6 +18,7 @@
 import logging
 import os
 #import ldap
+import requests
 
 import wtforms_json
 from flask import Flask, redirect, make_response, g , request, flash
@@ -53,7 +54,8 @@ from superset.extensions import (
 from superset.security import SupersetSecurityManager
 from superset.utils.core import pessimistic_connection_handling
 from superset.utils.log import DBEventLogger, get_event_logger_from_cfg_value
-
+from superset.custom_security_manager import CustomSecurityManager,SSOSessionClient
+#from superset import security_manager
 logger = logging.getLogger(__name__)
 
 
@@ -82,13 +84,25 @@ class SupersetIndexView(IndexView):
 
         name = request.cookies.get('sso')
         if name is not None:
-            a = name.split(':')
-            username,pwd = a[0],a[1] 
+            client = SSOSessionClient('34.212.135.8', 1978, 'ssosession')
+            #postResponse = client.create_sso_session('TestApp', 'TestUser')
+            sso_id = client.get_sso_session(name)
+            user = sso_id['username']
 
-            user = self.appbuilder.sm.auth_user_db(username, pwd )
-            if not user:
-                #flash(self.invalid_login_message, "warning")
+            #user = security_manager.find_user(username=user)
+            user = self.appbuilder.sm.find_user(username=user)
+            if not user.is_active:
                 return redirect(self.appbuilder.get_url_for_login)
+
+
+
+        #     a = name.split(':')
+        #     username,pwd = a[0],a[1] 
+
+        #     user = self.appbuilder.sm.auth_user_db(username, pwd )
+        #     if not user:
+        #         #flash(self.invalid_login_message, "warning")
+        #         return redirect(self.appbuilder.get_url_for_login)
             
             login_user(user, remember=False)
             return redirect("/superset/welcome")
