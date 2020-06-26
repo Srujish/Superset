@@ -2733,6 +2733,15 @@ class Superset(BaseSupersetView):
         """Personalized welcome page"""
         if not g.user or not g.user.get_id():
             return redirect(appbuilder.get_url_for_login)
+        
+
+            welcome_dashboard_id = (
+                db.session.query(UserAttribute.welcome_dashboard_id)
+            .filter_by(user_id=g.user.get_id())
+            .scalar()
+        )
+
+
 
         welcome_dashboard_id = (
             db.session.query(UserAttribute.welcome_dashboard_id)
@@ -2921,8 +2930,9 @@ def apply_http_headers(response: Response):
     response.headers.extend(
         {**config["OVERRIDE_HTTP_HEADERS"], **config["HTTP_HEADERS"]}
     )
-
+    
     for k, v in config["DEFAULT_HTTP_HEADERS"].items():
         if k not in response.headers:
             response.headers[k] = v
+
     return response

@@ -26,7 +26,7 @@ import json
 import logging
 import os
 import sys
-import ldap
+
 from collections import OrderedDict
 from datetime import date
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
@@ -127,9 +127,13 @@ SUPERSET_WEBSERVER_TIMEOUT = 60
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
 
+#### SSO Custom changes ####
 SSO_HOST = '34.212.135.8'
 SSO_PORT = 1978
 SSO_NAME = 'ssosession'
+SSO_API_NAME = 'SUPERSET'
+SSO_DOMAIN_NAME = '.qubz-bi.com'
+
 
 from flask_appbuilder.security.manager import AUTH_DB
 from superset.custom_security_manager import CustomSecurityManager
@@ -222,6 +226,7 @@ DRUID_IS_ACTIVE = False
 # connector.
 DRUID_METADATA_LINKS_ENABLED = True
 
+
 # ----------------------------------------------------
 # AUTHENTICATION CONFIG
 # ----------------------------------------------------
@@ -231,6 +236,7 @@ DRUID_METADATA_LINKS_ENABLED = True
 # AUTH_LDAP : Is for LDAP
 # AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
 #AUTH_TYPE = AUTH_DB
+#### SSO Custom changes ####
 AUTH_TYPE = AUTH_LDAP 
 
 # Uncomment to setup Full admin role name
@@ -246,7 +252,7 @@ AUTH_USER_REGISTRATION = True
 AUTH_USER_REGISTRATION_ROLE = 'Admin'
 
 # When using LDAP Auth, setup the LDAP server
-AUTH_LDAP_SERVER = 'ldap://34.212.135.8:389'
+AUTH_LDAP_SERVER = 'ldap://172.31.11.183:389'
 
 AUTH_LDAP_BIND_USER = 'cn=admin,dc=qubz-bi,dc=com'
 AUTH_LDAP_USE_TLS = False
@@ -541,6 +547,8 @@ HTTP_HEADERS: Dict[str, Any] = {}
 # The db id here results in selecting this one as a default in SQL Lab
 DEFAULT_DB_ID = None
 
+REMEMBER_COOKIE_NAME='sso'
+
 # Timeout duration for SQL Lab synchronous queries
 SQLLAB_TIMEOUT = 30
 
@@ -825,7 +833,7 @@ ENABLE_ROW_LEVEL_SECURITY = False
 #
 SESSION_COOKIE_HTTPONLY = False  # Prevent cookie from being read by frontend JS?
 SESSION_COOKIE_SECURE = False  # Prevent cookie from being transmitted over non-tls?
-SESSION_COOKIE_SAMESITE = "Lax"  # One of [None, 'Lax', 'Strict']
+SESSION_COOKIE_SAMESITE = 'None'  # One of [None, 'Lax', 'Strict']
 
 
 # Flask configuration variables

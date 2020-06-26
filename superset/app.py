@@ -17,15 +17,16 @@
 
 import logging
 import os
-#import ldap
+
 import requests
 
 import wtforms_json
-from flask import Flask, redirect, make_response, g , request, flash
+from flask import Flask, redirect, make_response, g , request, flash, Response, session
 from flask_appbuilder import expose, IndexView
 from flask_babel import gettext as __, lazy_gettext as _
 from flask_compress import Compress
 from flask_wtf import CSRFProtect
+import simplejson as json
 
 from urllib.parse import quote
 
@@ -35,6 +36,7 @@ from flask_appbuilder.security.views import expose
 from flask_appbuilder.security.manager import BaseSecurityManager
 
 from flask_login import login_user, logout_user
+
 
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.extensions import (
@@ -52,15 +54,21 @@ from superset.extensions import (
     talisman,
 )
 from superset.security import SupersetSecurityManager
+from flask.sessions import SecureCookieSessionInterface
 from superset.utils.core import pessimistic_connection_handling
 from superset.utils.log import DBEventLogger, get_event_logger_from_cfg_value
+
+#### SSO Custom_Importy ####
 from superset.custom_security_manager import CustomSecurityManager,SSOSessionClient
-#from superset import security_manager
+
 logger = logging.getLogger(__name__)
 
 
 def create_app():
     app = Flask(__name__)
+    if __name__ == "__main__":
+        app.run(ssl_context='adhoc')
+
 
     try:
         # Allow user to override our config completely
@@ -78,35 +86,12 @@ def create_app():
         raise ex
 
 
+
 class SupersetIndexView(IndexView):
-    @expose("/", methods=['GET', 'POST'])
+
+    @expose("/", methods=['GET'])
     def index(self):
 
-        name = request.cookies.get('sso')
-        if name is not None:
-            client = SSOSessionClient('34.212.135.8', 1978, 'ssosession')
-            #postResponse = client.create_sso_session('TestApp', 'TestUser')
-            sso_id = client.get_sso_session(name)
-            user = sso_id['username']
-
-            #user = security_manager.find_user(username=user)
-            user = self.appbuilder.sm.find_user(username=user)
-            if not user.is_active:
-                return redirect(self.appbuilder.get_url_for_login)
-
-
-
-        #     a = name.split(':')
-        #     username,pwd = a[0],a[1] 
-
-        #     user = self.appbuilder.sm.auth_user_db(username, pwd )
-        #     if not user:
-        #         #flash(self.invalid_login_message, "warning")
-        #         return redirect(self.appbuilder.get_url_for_login)
-            
-            login_user(user, remember=False)
-            return redirect("/superset/welcome")
-        
         return redirect("/superset/welcome")
         
 
